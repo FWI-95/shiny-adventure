@@ -1,4 +1,4 @@
-package com.devfoxone.sadventure;
+package com.fwi95.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
