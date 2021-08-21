@@ -71,7 +71,7 @@ public class GameScreen implements Screen {
 	}
 
 	@Override
-	public void render(float delta) {
+	public void render(float delta) {	
 		// clear the screen with a dark blue color. The
 		// arguments to clear are the red, green
 		// blue and alpha component in the range [0,1]
@@ -131,6 +131,11 @@ public class GameScreen implements Screen {
 				dropSound.play();
 				iter.remove();
 			}
+		}
+
+		//check for escape
+		if (Gdx.input.isKeyJustPressed(Keys.ESCAPE)) {
+			game.setScreen(new PauseMenuScreen(game, this));
 		}
 	}
 
