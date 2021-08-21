@@ -3,13 +3,19 @@ package com.fwi95.game;
 
 import java.util.Iterator;
 
+import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
@@ -29,6 +35,9 @@ public class GameScreen implements Screen {
 	Array<Rectangle> raindrops;
 	long lastDropTime;
 	int dropsGathered;
+
+	TiledMap tiledMap;
+	TiledMapRenderer tiledMapRenderer;
 
 	public GameScreen(final ShinyAdventure game) {
 		this.game = game;
@@ -57,6 +66,9 @@ public class GameScreen implements Screen {
 		// create the raindrops array and spawn the first raindrop
 		raindrops = new Array<Rectangle>();
 		spawnRaindrop();
+
+		tiledMap = new TmxMapLoader().load("maps/Default.tmx");
+        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
 	}
 
@@ -137,6 +149,28 @@ public class GameScreen implements Screen {
 		if (Gdx.input.isKeyJustPressed(Keys.ESCAPE)) {
 			game.setScreen(new PauseMenuScreen(game, this));
 		}
+
+		tiledMapRenderer.setView(camera);
+        tiledMapRenderer.render();
+
+		if(Gdx.input.isKeyPressed(Keys.LEFT)){
+			camera.translate(-16,0);
+		}
+		if(Gdx.input.isKeyPressed(Keys.RIGHT)){
+			camera.translate(16,0);
+		}
+		if(Gdx.input.isKeyPressed(Keys.UP)){
+			camera.translate(0,16);
+		}
+		if(Gdx.input.isKeyPressed(Keys.DOWN)){
+			camera.translate(0,-16);
+		}
+		if(Gdx.input.isKeyPressed(Keys.NUM_1)){
+			tiledMap.getLayers().get(0).setVisible(!tiledMap.getLayers().get(0).isVisible());
+		}
+		if(Gdx.input.isKeyJustPressed(Keys.NUM_2)){
+			tiledMap.getLayers().get(1).setVisible(!tiledMap.getLayers().get(1).isVisible());
+		}
 	}
 
 	@Override
@@ -169,5 +203,4 @@ public class GameScreen implements Screen {
 		dropSound.dispose();
 		rainMusic.dispose();
 	}
-
 }
