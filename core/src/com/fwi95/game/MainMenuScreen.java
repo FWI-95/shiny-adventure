@@ -2,6 +2,7 @@ package com.fwi95.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -11,11 +12,16 @@ public class MainMenuScreen implements Screen {
 
 	OrthographicCamera camera;
 
+    Music backgroundMusic;
+
 	public MainMenuScreen(final ShinyAdventure game) {
 		this.game = game;
 
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 800, 480);
+		camera.setToOrtho(false, 1920, 1080);
+
+        backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("sfx/music/Menu_-_Lost_In_Time.ogg"));
+		backgroundMusic.setLooping(true);
 	}
 
 
@@ -32,6 +38,7 @@ public class MainMenuScreen implements Screen {
 		game.batch.end();
 
 		if (Gdx.input.isTouched()) {
+            backgroundMusic.stop();
 			game.setScreen(new GameScreen(game));
 			dispose();
 		}
@@ -41,7 +48,7 @@ public class MainMenuScreen implements Screen {
     @Override
     public void show() {
         // TODO Auto-generated method stub
-        
+        backgroundMusic.play();
     }
 
 
