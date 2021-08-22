@@ -3,9 +3,7 @@ package com.fwi95.game;
 
 import java.util.Iterator;
 
-import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
@@ -26,15 +24,13 @@ import com.badlogic.gdx.utils.TimeUtils;
 public class GameScreen implements Screen {
 	final ShinyAdventure game;
 
-	Texture dropImage;
-	Texture bucketImage;
-	Sound dropSound;
+	Sound shootSound;
 	Music backgroundMusic;
 	OrthographicCamera camera;
-	Rectangle bucket;
-	Array<Rectangle> raindrops;
-	long lastDropTime;
-	int dropsGathered;
+	// Rectangle bucket;
+	Array<Rectangle> enemies;
+	long lastSpawnTime;
+	int enemiesKilled;
 
 	TiledMap tiledMap;
 	TiledMapRenderer tiledMapRenderer;
@@ -46,8 +42,7 @@ public class GameScreen implements Screen {
 		dropImage = new Texture(Gdx.files.internal("droplet.png"));
 		bucketImage = new Texture(Gdx.files.internal("bucket.png"));
 
-		// load the drop sound effect and the rain background "music"
-		dropSound = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
+		// background music
 		backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("sfx/music/Action_-_Keep_Moving.ogg"));
 		backgroundMusic.setLooping(true);
 
@@ -64,22 +59,22 @@ public class GameScreen implements Screen {
 		bucket.height = 64;
 
 		// create the raindrops array and spawn the first raindrop
-		raindrops = new Array<Rectangle>();
-		spawnRaindrop();
+		enemies = new Array<Rectangle>();
+		spawnEnemy();
 
 		tiledMap = new TmxMapLoader().load("maps/Default.tmx");
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
 	}
 
-	private void spawnRaindrop() {
+	private void spawnEnemy() {
 		Rectangle raindrop = new Rectangle();
 		raindrop.x = MathUtils.random(0, 800 - 64);
 		raindrop.y = 480;
 		raindrop.width = 64;
 		raindrop.height = 64;
-		raindrops.add(raindrop);
-		lastDropTime = TimeUtils.nanoTime();
+		enemies.add(raindrop);
+		lastSpawnTime = TimeUtils.nanoTime();
 	}
 
 	@Override
@@ -100,9 +95,9 @@ public class GameScreen implements Screen {
 		// begin a new batch and draw the bucket and
 		// all drops
 		game.batch.begin();
-		game.font.draw(game.batch, "Drops Collected: " + dropsGathered, 0, 480);
+		game.font.draw(game.batch, "Drops Collected: " + enemiesKilled, 0, 480);
 		game.batch.draw(bucketImage, bucket.x, bucket.y, bucket.width, bucket.height);
-		for (Rectangle raindrop : raindrops) {
+		for (Rectangle raindrop : enemies) {
 			game.batch.draw(dropImage, raindrop.x, raindrop.y);
 		}
 		game.batch.end();
@@ -126,21 +121,21 @@ public class GameScreen implements Screen {
 			bucket.x = 800 - 64;
 
 		// check if we need to create a new raindrop
-		if (TimeUtils.nanoTime() - lastDropTime > 1000000000)
-			spawnRaindrop();
+		if (TimeUtils.nanoTime() - lastSpawnTime > 1000000000)
+			spawnEnemy();
 
 		// move the raindrops, remove any that are beneath the bottom edge of
 		// the screen or that hit the bucket. In the later case we increase the
 		// value our drops counter and add a sound effect.
-		Iterator<Rectangle> iter = raindrops.iterator();
+		Iterator<Rectangle> iter = enemies.iterator();
 		while (iter.hasNext()) {
 			Rectangle raindrop = iter.next();
 			raindrop.y -= 200 * Gdx.graphics.getDeltaTime();
 			if (raindrop.y + 64 < 0)
 				iter.remove();
 			if (raindrop.overlaps(bucket)) {
-				dropsGathered++;
-				dropSound.play();
+				enemiesKilled++;
+				shootSound.play();
 				iter.remove();
 			}
 		}
@@ -201,7 +196,7 @@ public class GameScreen implements Screen {
 	public void dispose() {
 		dropImage.dispose();
 		bucketImage.dispose();
-		dropSound.dispose();
+		shootSound.dispose();
 		backgroundMusic.dispose();
 	}
 }
